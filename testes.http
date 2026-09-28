@@ -18,7 +18,7 @@ POST {{url}}/treinos
 Content-Type: application/json
 
 {
-    "nome": "Peito e triceps",
+    "nome": "Triceps",
     "duracao": 60
 }
 
