@@ -18,7 +18,7 @@ POST {{url}}/treinos
 Content-Type: application/json
 
 {
-    "nome": "Peito e triceps",
+    "nome": "Triceps",
     "duracao": 60
 }
 
@@ -65,7 +65,7 @@ PUT {{url}}/treinos/1
 Content-Type: application/json
 
 {
-    "nome": "Peito, triceps e ombro",
+    "nome": "Peito, triceps",
     "duracao": 75
 }
 
