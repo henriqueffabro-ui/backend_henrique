@@ -65,7 +65,7 @@ PUT {{url}}/treinos/1
 Content-Type: application/json
 
 {
-    "nome": "Peito, triceps e ombro",
+    "nome": "Peito, triceps",
     "duracao": 75
 }
 

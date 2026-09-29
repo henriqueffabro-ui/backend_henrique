@@ -104,23 +104,25 @@ app.post('/treinos', (req, res) => {
 // ------------------------------------------------------------
 
 app.put('/treinos/:id', (req, res) => {
+    const {nome, duracao} = req.body || {}; 
     const id = Number(req.params.id);
-    const treino = treinos.find((t) => t.id === id);
+
+    const treino = db.prepare(`SELECT * FROM treinos WHERE id = ?`).get(id);
 
     if (treino === undefined) {
         return res.status(404).json({ erro: 'Treino nao encontrado.' });
     }
-
     const erro = validarTreino(req.body);
 
     if (erro !== null) {
         return res.status(400).json({ erro: erro });
     }
 
-    treino.nome = req.body.nome;
-    treino.duracao = req.body.duracao;
+    db.prepare(`UPDATE treinos SET nome = ?, duracao = ?`).run(nome, duracao);
 
-    res.status(200).json(treino);
+    const treinoAtualizado = db.prepare('SELECT * FROM treinos WHERE id = ?').get(id);
+
+    return res.status(200).json(treinoAtualizado);
 });
 
 
@@ -130,13 +132,14 @@ app.put('/treinos/:id', (req, res) => {
 
 app.delete('/treinos/:id', (req, res) => {
     const id = Number(req.params.id);
-    const posicao = treinos.findIndex((t) => t.id === id);
 
-    if (posicao === -1) {
+     const treino = db.prepare(`SELECT * FROM treinos WHERE id = ?`).get(id);
+
+    if (treino === undefined) {
         return res.status(404).json({ erro: 'Treino nao encontrado.' });
     }
 
-    treinos.splice(posicao, 1);
+    db.prepare(`DELETE FROM treinos WHERE id = ?`).run(id);
 
     res.status(204).end();
 });
