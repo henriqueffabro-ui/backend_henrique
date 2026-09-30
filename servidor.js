@@ -32,7 +32,7 @@ db.exec(`
 db.prepare('INSERT INTO treinos (nome, duracao) VALUES (?, ?)')
   .run('Teste de banco', 10);
 
-console.log(db.prepare('SELECT * FROM treinos').all());
+//console.log(db.prepare('SELECT * FROM treinos').all());
 
 
 // ------------------------------------------------------------
@@ -55,11 +55,55 @@ function validarTreino(corpo) {
 
 // ------------------------------------------------------------
 // GET /treinos - lista todos os treinos
+// Adiciona filtro,  ordenacao decrescente por duração e busca por nome
 // ------------------------------------------------------------
 
 app.get('/treinos', (req, res) => {
-    const treinos = db.prepare(`SELECT * FROM treinos`).all();
+    const minimo = Number(req.query.minimo);
+    const busca = req.query.busca;
+
+    let treinos;
+
+    if (req.query.minimo) {
+        treinos = db
+            .prepare(`SELECT * FROM treinos WHERE duracao >= ? ORDER BY duracao DESC`)
+            .all(minimo);
+    } else if (req.query.busca) {
+        treinos = db
+            .prepare(`SELECT * FROM treinos WHERE nome LIKE ? ORDER BY duracao DESC`)
+            .all(`%${busca}%`);
+    }
+    else {
+        treinos = db
+            .prepare(`SELECT * FROM treinos ORDER BY duracao DESC`)
+            .all();
+    }
+
     res.status(200).json(treinos);
+});
+
+// ------------------------------------------------------------
+// GET /treinos/total - busca o total de treinos
+// ------------------------------------------------------------
+
+app.get('/treinos/total', (req, res) => {
+    const total = db.prepare(`SELECT COUNT(*) as total FROM treinos`).get();
+    res.status(200).json(total);
+});
+
+// ------------------------------------------------------------
+// GET /treinos/resumo - devolve o resumo
+// ------------------------------------------------------------
+
+app.get('/treinos/resumo', (req, res) => {
+    const resumo = db.prepare(`
+        SELECT COUNT(*) AS total,
+            SUM(duracao) AS duracao_total,
+            AVG(duracao) AS duracao_media
+        FROM treinos
+    `).get();
+
+    res.status(200).json(resumo);
 });
 
 // ------------------------------------------------------------
@@ -69,9 +113,12 @@ app.get('/treinos', (req, res) => {
 app.get('/treinos/:id', (req, res) => {
     const id = Number(req.params.id);
 
-    const treino = db.prepare(`SELECT * FROM treinos WHERE id = ?`).get(id);
-   
+    if (isNaN(id)) {
+        return res.status(400).json({ erro: 'ID invalido.' });
+    }
 
+    const treino = db.prepare(`SELECT * FROM treinos WHERE id = ?`).get(id);
+    
     if (treino === undefined) {
         return res.status(404).json({ erro: 'Treino nao encontrado.' });
     }
@@ -98,6 +145,8 @@ app.post('/treinos', (req, res) => {
 
     res.status(201).json(novoProduto);
 });
+
+
 
 // ------------------------------------------------------------
 // PUT /treinos/:id - substitui um treino

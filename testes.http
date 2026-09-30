@@ -90,3 +90,19 @@ DELETE {{url}}/treinos/99999
 
 ### 12 - Listar de novo pra conferir       -> espera 200
 GET {{url}}/treinos
+
+
+### 13 - Buscar o total de treinos         -> espera 200
+GET {{url}}/treinos/total
+
+### 14 - Filtro minimo duracao 40
+GET {{url}}/treinos?minimo=40
+
+### 15 - busca por nome 
+GET {{url}}/treinos?busca=triceps
+
+### 16 - resumo
+GET {{url}}/treinos/resumo
+
+### 17 - busca id que nao é numero
+GET {{url}}/treinos/abc
