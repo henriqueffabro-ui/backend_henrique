@@ -58,6 +58,8 @@ function validarTreino(corpo) {
 app.get('/treinos', (req, res) => {
     const { minimo, busca } = req.query;
 
+    // Começa a montar a query SQL e os parametros para o filtro
+    // WHERE 1 = 1 é uma tecnica para facilitar a adicao de condicoes
     let sql = 'SELECT * FROM treinos WHERE 1 = 1';
     const parametros = [];
 
@@ -70,7 +72,9 @@ app.get('/treinos', (req, res) => {
             });
         }
 
+        // Adiciona a condicao de filtro na query SQL e o valor do parametro
         sql += ' AND duracao >= ?';
+        // Adiciona o valor do parametro na lista de parametros
         parametros.push(duracaoMinima);
     }
 
@@ -81,12 +85,17 @@ app.get('/treinos', (req, res) => {
             });
         }
 
+        // Continua a adicionar o filtro na query, e o valor do parametro na lista de parametros
         sql += ' AND nome LIKE ?';
         parametros.push(`%${busca.trim()}%`);
     }
 
+    // Adiciona a ordem ao final da query
     sql += ' ORDER BY duracao DESC';
 
+    // Executa a query com os parametros e devolve o resultado
+    // ... passa os elementos de um array como parametros separados
+    // Aqui, os parametros podem ser 2: a duração e a busca
     const treinos = db.prepare(sql).all(...parametros);
 
     res.status(200).json(treinos);
