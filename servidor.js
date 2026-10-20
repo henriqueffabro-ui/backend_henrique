@@ -29,9 +29,6 @@ db.exec(`
     )
 `);
 
-db.prepare('INSERT INTO treinos (nome, duracao) VALUES (?, ?)')
-  .run('Teste de banco', 10);
-
 //console.log(db.prepare('SELECT * FROM treinos').all());
 
 
@@ -59,25 +56,38 @@ function validarTreino(corpo) {
 // ------------------------------------------------------------
 
 app.get('/treinos', (req, res) => {
-    const minimo = Number(req.query.minimo);
-    const busca = req.query.busca;
+    const { minimo, busca } = req.query;
 
-    let treinos;
+    let sql = 'SELECT * FROM treinos WHERE 1 = 1';
+    const parametros = [];
 
-    if (req.query.minimo) {
-        treinos = db
-            .prepare(`SELECT * FROM treinos WHERE duracao >= ? ORDER BY duracao DESC`)
-            .all(minimo);
-    } else if (req.query.busca) {
-        treinos = db
-            .prepare(`SELECT * FROM treinos WHERE nome LIKE ? ORDER BY duracao DESC`)
-            .all(`%${busca}%`);
+    if (minimo !== undefined) {
+        const duracaoMinima = Number(minimo);
+
+        if (minimo.trim() === '' || !Number.isFinite(duracaoMinima) || duracaoMinima < 0) {
+            return res.status(400).json({
+                erro: 'O parametro minimo deve ser um numero maior ou igual a zero.'
+            });
+        }
+
+        sql += ' AND duracao >= ?';
+        parametros.push(duracaoMinima);
     }
-    else {
-        treinos = db
-            .prepare(`SELECT * FROM treinos ORDER BY duracao DESC`)
-            .all();
+
+    if (busca !== undefined) {
+        if (typeof busca !== 'string' || busca.trim() === '') {
+            return res.status(400).json({
+                erro: 'O parametro busca deve conter um texto.'
+            });
+        }
+
+        sql += ' AND nome LIKE ?';
+        parametros.push(`%${busca.trim()}%`);
     }
+
+    sql += ' ORDER BY duracao DESC';
+
+    const treinos = db.prepare(sql).all(...parametros);
 
     res.status(200).json(treinos);
 });
@@ -167,7 +177,8 @@ app.put('/treinos/:id', (req, res) => {
         return res.status(400).json({ erro: erro });
     }
 
-    db.prepare(`UPDATE treinos SET nome = ?, duracao = ?`).run(nome, duracao);
+    db.prepare(`UPDATE treinos SET nome = ?, duracao = ? WHERE id = ?
+    `).run(nome.trim(), duracao, id);
 
     const treinoAtualizado = db.prepare('SELECT * FROM treinos WHERE id = ?').get(id);
 

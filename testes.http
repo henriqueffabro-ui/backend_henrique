@@ -106,3 +106,6 @@ GET {{url}}/treinos/resumo
 
 ### 17 - busca id que nao é numero
 GET {{url}}/treinos/abc
+
+#### 18 - busca com filtro minimo e busca
+GET {{url}}/treinos?minimo=40&busca=triceps
