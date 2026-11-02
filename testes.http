@@ -109,3 +109,48 @@ GET {{url}}/treinos/abc
 
 #### 18 - busca com filtro minimo e busca
 GET {{url}}/treinos?minimo=40&busca=triceps
+
+### 19 - Login com senha certa (Espera 200 e Set-Cookie)
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+  "usuario": "diego",
+  "senha": "1234"
+}
+
+### 20 - Perfil (Espera 200 com o usuário logado)
+GET http://localhost:3000/perfil
+
+### 21 - Logout (Espera 204)
+POST http://localhost:3000/logout
+
+### 22 - Perfil de novo (Espera 401 - Não autorizado)
+GET http://localhost:3000/perfil
+
+### 23 - Login com usuario errado
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+  "usuario": "errado",
+  "senha": "1234"
+}
+
+### 24 - Login com senha errada
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+  "usuario": "diego",
+  "senha": "errada"
+}
+
+### 25 - Logando como usuario aluno
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+  "usuario": "aluno",
+  "senha": "senha"
+}
