@@ -1,15 +1,28 @@
+const bcrypt = require('bcrypt');
 const repository = require('../repositories/usuariosRepository.js');
 
-function login(usuario, senha) {
+async function login(usuario, senha) {
+
     const encontrado = repository.buscarPorUsuario(usuario);
     if (encontrado === undefined) {
-        return { invalido: true }; // usuario nao existe
+        return { invalido: true };
     }
-    if (encontrado.senha !== senha) {
-        return { invalido: true }; // senha errada (texto puro, por enquanto)
+
+    const confere = await bcrypt.compare(
+        senha,
+        encontrado.senha_hash
+    );
+
+    if (!confere) {
+        return { invalido: true };
     }
-    // devolve sem a senha
-    return { usuario: { id: encontrado.id, usuario: encontrado.usuario } };
+    
+    return {
+        usuario: {
+        id: encontrado.id,
+        usuario: encontrado.usuario
+        }
+    };
 }
 
 module.exports = { login };

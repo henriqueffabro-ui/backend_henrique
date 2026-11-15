@@ -19,10 +19,11 @@ const service = require('../services/authService.js');
 const sessoes = require('../sessoes.js');
 const usuariosRepository = require('../repositories/usuariosRepository.js');
 
-function login(req, res) {
+async function login(req, res) {
     const usuario = (req.body.usuario ?? '').trim();
     const senha = req.body.senha ?? '';
-    const resultado = service.login(usuario, senha);
+    const resultado = await service.login(usuario, senha);
+
     if (resultado.invalido === true){
     // 401: "nao sei quem voce e". De proposito nao dizemos se foi o
     // usuario ou a senha que errou, para nao ajudar quem tenta adivinhar.
